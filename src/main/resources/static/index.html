@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Finance AI</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- =============================================
+     TOAST CONTAINER (mensagens de sucesso/erro)
+     ============================================= -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- =============================================
+     BOTÃO HAMBURGER (só aparece no mobile)
+     ============================================= -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menu">☰</button>
+
+<!-- =============================================
+     OVERLAY (fundo escuro quando sidebar abre no mobile)
+     ============================================= -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- =============================================
+     LAYOUT PRINCIPAL
+     ============================================= -->
+<div class="app-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Logo / Nome do app -->
+        <div class="sidebar-brand">
+            <div class="brand-icon">💹</div>
+            <div>
+                <span class="brand-name">Finance AI</span>
+                <span class="brand-sub">Assistente Financeiro</span>
+            </div>
+        </div>
+
+        <!-- Links de navegação -->
+        <nav class="sidebar-nav">
+            <p class="nav-label">Menu</p>
+
+            <a href="index.html" class="active">
+                <span class="nav-icon">🏠</span>
+                Dashboard
+            </a>
+
+            <a href="transacoes.html">
+                <span class="nav-icon">💰</span>
+                Transações
+            </a>
+
+            <a href="ai.html">
+                <span class="nav-icon">🤖</span>
+                Finance AI
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            Finance AI &copy; 2025
+        </div>
+    </aside>
+    <!-- ── FIM SIDEBAR ── -->
+
+    <!-- ── CONTEÚDO PRINCIPAL ── -->
+    <div class="main-content">
+
+        <!-- Top bar -->
+        <header class="topbar">
+            <span class="topbar-title">Dashboard</span>
+            <span class="topbar-badge">📊 Visão geral</span>
+        </header>
+
+        <!-- Corpo da página -->
+        <main class="page-body">
+
+            <!-- ── CARDS DE RESUMO ── -->
+            <div class="summary-cards" id="summaryCards">
+
+                <!-- Card Saldo -->
+                <div class="card card-summary">
+                    <div class="card-icon card-icon-balance">💰</div>
+                    <div class="card-info">
+                        <p class="card-label">Saldo atual</p>
+                        <p class="card-value card-value-balance" id="cardBalance">
+                            <span class="skeleton" style="width:120px;height:28px;display:inline-block;"></span>
+                        </p>
+                        <p class="card-sub">Receitas - Despesas</p>
+                    </div>
+                </div>
+
+                <!-- Card Receitas -->
+                <div class="card card-summary">
+                    <div class="card-icon card-icon-income">📈</div>
+                    <div class="card-info">
+                        <p class="card-label">Receitas</p>
+                        <p class="card-value card-value-income" id="cardIncome">
+                            <span class="skeleton" style="width:100px;height:28px;display:inline-block;"></span>
+                        </p>
+                        <p class="card-sub">Total de entradas</p>
+                    </div>
+                </div>
+
+                <!-- Card Despesas -->
+                <div class="card card-summary">
+                    <div class="card-icon card-icon-expense">📉</div>
+                    <div class="card-info">
+                        <p class="card-label">Despesas</p>
+                        <p class="card-value card-value-expense" id="cardExpense">
+                            <span class="skeleton" style="width:100px;height:28px;display:inline-block;"></span>
+                        </p>
+                        <p class="card-sub">Total de saídas</p>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ── FIM CARDS ── -->
+
+            <!-- ── TABELA ÚLTIMAS TRANSAÇÕES ── -->
+            <div class="section-header">
+                <h2 class="section-title">Últimas transações</h2>
+                <button class="btn btn-primary" id="btnNewTransaction">
+                    ＋ Nova transação
+                </button>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Tipo</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <!-- Linhas skeleton enquanto carrega -->
+                            <tr class="skeleton-row">
+                                <td><div class="skeleton skeleton-cell" style="width:20px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:140px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:70px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:100px"></div></td>
+                            </tr>
+                            <tr class="skeleton-row">
+                                <td><div class="skeleton skeleton-cell" style="width:20px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:160px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:70px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:100px"></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- ── FIM TABELA ── -->
+
+        </main>
+    </div>
+    <!-- ── FIM CONTEÚDO PRINCIPAL ── -->
+
+</div>
+<!-- ── FIM LAYOUT ── -->
+
+
+<!-- =============================================
+     MODAL — Nova / Editar Transação
+     ============================================= -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Nova transação</h3>
+            <button class="modal-close" id="modalClose" aria-label="Fechar">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <form id="transactionForm" novalidate>
+
+                <!-- ID oculto para edição -->
+                <input type="hidden" id="fieldId" />
+
+                <!-- Descrição -->
+                <div class="form-group">
+                    <label class="form-label" for="fieldDescription">Descrição *</label>
+                    <input
+                        type="text"
+                        id="fieldDescription"
+                        class="form-control"
+                        placeholder="Ex: Salário, Aluguel, Supermercado..."
+                        maxlength="120"
+                    />
+                </div>
+
+                <!-- Valor -->
+                <div class="form-group">
+                    <label class="form-label" for="fieldAmount">Valor (R$) *</label>
+                    <input
+                        type="number"
+                        id="fieldAmount"
+                        class="form-control"
+                        placeholder="0,00"
+                        min="0.01"
+                        step="0.01"
+                    />
+                </div>
+
+                <!-- Tipo -->
+                <div class="form-group">
+                    <label class="form-label" for="fieldType">Tipo *</label>
+                    <select id="fieldType" class="form-control">
+                        <option value="">Selecione o tipo</option>
+                        <option value="INCOME">💚 Receita</option>
+                        <option value="EXPENSE">❤️ Despesa</option>
+                    </select>
+                </div>
+
+                <!-- Categoria -->
+                <div class="form-group">
+                    <label class="form-label" for="fieldCategory">Categoria *</label>
+                    <select id="fieldCategory" class="form-control">
+                        <option value="">Selecione a categoria</option>
+                        <option value="SALARY">💼 Salário</option>
+                        <option value="FOOD">🍔 Alimentação</option>
+                        <option value="TRANSPORT">🚗 Transporte</option>
+                        <option value="HOUSING">🏠 Moradia</option>
+                        <option value="HEALTH">💊 Saúde</option>
+                        <option value="LEISURE">🎮 Lazer</option>
+                        <option value="OTHER">📦 Outros</option>
+                    </select>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Cancelar</button>
+            <button class="btn btn-primary" id="btnSave">
+                <span id="btnSaveLabel">Salvar</span>
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ── FIM MODAL ── -->
+
+
+<!-- Script da página -->
+<script src="js/dashboard.js"></script>
+
+</body>
+</html>

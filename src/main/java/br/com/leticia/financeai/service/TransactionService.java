@@ -6,6 +6,8 @@ import br.com.leticia.financeai.repository.TransactionRepository;
 import br.com.leticia.financeai.dto.TransactionDTO;
 import br.com.leticia.financeai.enums.TransactionType;
 import java.math.BigDecimal;
+import br.com.leticia.financeai.exception.ResourceNotFoundException;
+
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class TransactionService {
 
     public Transaction findById(Long id) {
         return transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
     }
 
     public void delete(Long id) {
@@ -38,7 +40,7 @@ public class TransactionService {
     public Transaction update(Long id, Transaction transaction) {
 
         Transaction existing = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+                .orElseThrow(() -> new  ResourceNotFoundException("Transaction not found"));
 
         existing.setDescription(transaction.getDescription());
         existing.setAmount(transaction.getAmount());

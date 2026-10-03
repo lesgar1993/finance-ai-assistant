@@ -7,14 +7,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -32,12 +30,24 @@ public class GlobalExceptionHandler {
                         )
                 );
 
-
         return new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation error",
                 errors
+        );
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseDTO handleResourceNotFound(
+            ResourceNotFoundException exception) {
+
+        return new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                exception.getMessage(),
+                null
         );
     }
 }
