@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finance AI — Assistente</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Botão hamburger (mobile) -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menu">☰</button>
+
+<!-- Overlay sidebar (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="brand-icon">💹</div>
+            <div>
+                <span class="brand-name">Finance AI</span>
+                <span class="brand-sub">Assistente Financeiro</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-label">Menu</p>
+
+            <a href="index.html">
+                <span class="nav-icon">🏠</span>
+                Dashboard
+            </a>
+
+            <a href="transacoes.html">
+                <span class="nav-icon">💰</span>
+                Transações
+            </a>
+
+            <a href="ai.html" class="active">
+                <span class="nav-icon">🤖</span>
+                Finance AI
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            Finance AI &copy; 2025
+        </div>
+    </aside>
+    <!-- ── FIM SIDEBAR ── -->
+
+    <!-- ── CONTEÚDO PRINCIPAL ── -->
+    <div class="main-content">
+
+        <header class="topbar">
+            <span class="topbar-title">Finance AI</span>
+            <span class="topbar-badge" style="background:var(--purple-light); color:var(--purple-ai);">
+                🤖 Assistente inteligente
+            </span>
+        </header>
+
+        <!--
+            A página de IA tem um layout em coluna:
+            hero (título) → chat window (flexível) → área de input (fixo embaixo)
+        -->
+        <div class="ai-page">
+
+            <!-- ── HERO / CABEÇALHO DA IA ── -->
+            <div class="ai-hero">
+                <div class="ai-hero-icon">🤖</div>
+                <h1>Finance AI</h1>
+                <p>Seu assistente financeiro inteligente — pergunte sobre suas finanças</p>
+            </div>
+
+            <!-- ── CHIPS DE SUGESTÃO ── -->
+            <!--
+                Ao clicar num chip, o texto é copiado para o campo
+                e enviado automaticamente.
+            -->
+            <div class="chat-suggestions" id="suggestions">
+                <button class="suggestion-chip" data-msg="Quanto gastei este mês?">
+                    💸 Quanto gastei este mês?
+                </button>
+                <button class="suggestion-chip" data-msg="Quais foram minhas maiores despesas?">
+                    📊 Maiores despesas
+                </button>
+                <button class="suggestion-chip" data-msg="Quanto recebi este mês?">
+                    💰 Quanto recebi?
+                </button>
+                <button class="suggestion-chip" data-msg="Analise minhas finanças e me dê dicas de economia.">
+                    🔍 Analisar finanças
+                </button>
+                <button class="suggestion-chip" data-msg="Como está meu saldo atual?">
+                    💳 Ver saldo
+                </button>
+            </div>
+
+            <!-- ── JANELA DO CHAT ── -->
+            <!--
+                Mensagens são adicionadas dinamicamente pelo ai.js.
+                A janela tem scroll automático para a última mensagem.
+            -->
+            <div class="chat-window" id="chatWindow">
+                <!-- Mensagem de boas-vindas da IA (inicial, estática) -->
+                <div class="chat-msg chat-msg-ai" id="welcomeMsg">
+                    <div class="msg-avatar msg-avatar-ai">🤖</div>
+                    <div class="msg-bubble msg-bubble-ai">
+                        Olá! Sou a <strong>Finance AI</strong>, seu assistente financeiro. 👋<br /><br />
+                        Posso te ajudar a entender suas finanças, analisar despesas e muito mais.
+                        Use os atalhos acima ou digite sua pergunta!
+                    </div>
+                </div>
+            </div>
+            <!-- ── FIM CHAT WINDOW ── -->
+
+            <!-- ── ÁREA DE INPUT ── -->
+            <div class="chat-input-area">
+                <div class="chat-input-row">
+                    <textarea
+                        id="chatInput"
+                        placeholder="Digite sua pergunta sobre suas finanças..."
+                        rows="1"
+                        aria-label="Campo de mensagem"
+                    ></textarea>
+                    <button class="btn-send" id="btnSend" aria-label="Enviar mensagem" title="Enviar (Enter)">
+                        ➤
+                    </button>
+                </div>
+                <p style="text-align:center; font-size:11px; color:var(--gray-600); margin-top:8px;">
+                    Pressione <kbd style="background:var(--gray-200);padding:1px 5px;border-radius:4px;">Enter</kbd>
+                    para enviar •
+                    <kbd style="background:var(--gray-200);padding:1px 5px;border-radius:4px;">Shift+Enter</kbd>
+                    para nova linha
+                </p>
+            </div>
+            <!-- ── FIM INPUT ── -->
+
+        </div>
+        <!-- ── FIM AI PAGE ── -->
+
+    </div>
+    <!-- ── FIM CONTEÚDO PRINCIPAL ── -->
+
+</div>
+
+<script src="js/ai.js"></script>
+
+</body>
+</html>
