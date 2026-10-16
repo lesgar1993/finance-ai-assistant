@@ -3,121 +3,73 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Transações — Finance AI</title>
+    <title>Transações — Smart Finance</title>
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-<!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Botão hamburger (mobile) -->
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menu">☰</button>
-
-<!-- Overlay sidebar (mobile) -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <div class="app-layout">
-
-    <!-- ── SIDEBAR ── -->
-    <aside class="sidebar" id="sidebar">
-
-        <div class="sidebar-brand">
-            <div class="brand-icon">💹</div>
-            <div>
-                <span class="brand-name">Finance AI</span>
-                <span class="brand-sub">Assistente Financeiro</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <p class="nav-label">Menu</p>
-
-            <a href="index.html">
-                <span class="nav-icon">🏠</span>
-                Dashboard
-            </a>
-
-            <a href="transacoes.html" class="active">
-                <span class="nav-icon">💰</span>
-                Transações
-            </a>
-
-            <a href="ai.html">
-                <span class="nav-icon">🤖</span>
-                Finance AI
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            Finance AI &copy; 2025
-        </div>
-    </aside>
-    <!-- ── FIM SIDEBAR ── -->
-
-    <!-- ── CONTEÚDO PRINCIPAL ── -->
     <div class="main-content">
 
         <header class="topbar">
-            <span class="topbar-title">Transações</span>
-            <span class="topbar-badge">💳 Todas as movimentações</span>
+            <div class="topbar-brand">
+                <div class="topbar-brand-icon">
+                    <img src="img/logo_smart_finance.png" alt="Smart Finance" class="topbar-logo" />
+                </div>
+                <span class="topbar-brand-name">Smart Finance</span>
+            </div>
+            <span class="topbar-title"></span>
+            <span class="topbar-badge">Movimentações</span>
         </header>
 
         <main class="page-body">
 
-            <!-- ── BARRA DE FILTROS ── -->
-            <!--
-                Filtros locais: filtra os dados já carregados da API,
-                sem fazer novas requisições.
-            -->
+            <!-- Filtros -->
             <div class="filter-bar">
-                <span class="filter-label">Filtrar por:</span>
+                <span class="filter-label">Filtrar:</span>
 
-                <select id="filterType" title="Tipo">
+                <select id="filterType" title="Tipo" style="min-width:130px;">
                     <option value="">Todos os tipos</option>
-                    <option value="INCOME">💚 Receitas</option>
-                    <option value="EXPENSE">❤️ Despesas</option>
+                    <option value="INCOME">Receitas</option>
+                    <option value="EXPENSE">Despesas</option>
                 </select>
 
-                <select id="filterCategory" title="Categoria">
+                <select id="filterCategory" title="Categoria" style="min-width:150px;">
                     <option value="">Todas as categorias</option>
-                    <option value="SALARY">💼 Salário</option>
-                    <option value="FOOD">🍔 Alimentação</option>
-                    <option value="TRANSPORT">🚗 Transporte</option>
-                    <option value="HOUSING">🏠 Moradia</option>
-                    <option value="HEALTH">💊 Saúde</option>
-                    <option value="LEISURE">🎮 Lazer</option>
-                    <option value="OTHER">📦 Outros</option>
+                    <option value="SALARY">Salário</option>
+                    <option value="FOOD">Alimentação</option>
+                    <option value="TRANSPORT">Transporte</option>
+                    <option value="HOUSING">Moradia</option>
+                    <option value="HEALTH">Saúde</option>
+                    <option value="LEISURE">Lazer</option>
+                    <option value="OTHER">Outros</option>
                 </select>
 
-                <input
-                    type="text"
-                    id="filterSearch"
-                    placeholder="🔍 Buscar por descrição..."
-                    style="flex:1; min-width: 160px;"
-                />
+                <div class="filter-search-wrap">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="filterSearch" placeholder="Buscar por descrição..." />
+                </div>
 
-                <button class="btn btn-secondary btn-sm" id="btnClearFilters">
-                    ✕ Limpar filtros
+                <button class="btn btn-secondary btn-sm" id="btnClearFilters" style="white-space:nowrap;">
+                    Limpar
                 </button>
             </div>
 
-            <!-- ── CABEÇALHO DA SEÇÃO ── -->
+            <!-- Cabeçalho -->
             <div class="section-header">
                 <h2 class="section-title">
                     Todas as transações
-                    <!-- Contador de registros exibidos -->
-                    <span
-                        id="txCount"
-                        style="font-size:13px; font-weight:400; color:var(--gray-600); margin-left:8px;"
-                    ></span>
+                    <span id="txCount" style="font-size:12px; font-weight:500; color:var(--gray-400); margin-left:6px;"></span>
                 </h2>
                 <button class="btn btn-primary" id="btnNewTransaction">
-                    ＋ Nova transação
+                    <svg viewBox="0 0 24 24" width="15" height="15" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nova transação
                 </button>
             </div>
 
-            <!-- ── TABELA ── -->
+            <!-- Tabela -->
             <div class="table-card">
                 <div class="table-responsive">
                     <table id="transactionsTable">
@@ -133,24 +85,23 @@
                             </tr>
                         </thead>
                         <tbody id="transactionsBody">
-                            <!-- Skeletons de carregamento -->
                             <tr class="skeleton-row">
                                 <td><div class="skeleton skeleton-cell" style="width:24px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:150px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:70px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:110px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:60px"></div></td>
                             </tr>
                             <tr class="skeleton-row">
                                 <td><div class="skeleton skeleton-cell" style="width:24px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:130px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:95px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:70px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:110px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:70px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:60px"></div></td>
                             </tr>
                             <tr class="skeleton-row">
                                 <td><div class="skeleton skeleton-cell" style="width:24px"></div></td>
@@ -158,25 +109,35 @@
                                 <td><div class="skeleton skeleton-cell" style="width:85px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
                                 <td><div class="skeleton skeleton-cell" style="width:70px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:90px"></div></td>
-                                <td><div class="skeleton skeleton-cell" style="width:110px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:80px"></div></td>
+                                <td><div class="skeleton skeleton-cell" style="width:60px"></div></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <!-- ── FIM TABELA ── -->
 
         </main>
     </div>
-    <!-- ── FIM CONTEÚDO PRINCIPAL ── -->
-
 </div>
 
+<!-- Bottom Nav -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+    <a href="index.html" aria-label="Dashboard">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+    </a>
+    <a href="transacoes.html" class="active" aria-label="Transações">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Transações
+    </a>
+    <a href="ai.html" class="nav-ai" aria-label="Assistente Pessoal">
+        <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/></svg>
+        Assistente
+    </a>
+</nav>
 
-<!-- =============================================
-     MODAL — Nova / Editar Transação
-     ============================================= -->
+<!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 
@@ -187,57 +148,99 @@
 
         <div class="modal-body">
             <form id="transactionForm" novalidate>
-
                 <input type="hidden" id="fieldId" />
+                <input type="hidden" id="fieldType" />
+                <input type="hidden" id="fieldCategory" />
 
-                <!-- Descrição -->
+                <div class="form-group">
+                    <label class="form-label">Tipo *</label>
+                    <div class="type-selector" id="typeSelector">
+                        <button type="button" class="type-option" data-value="INCOME" id="typeIncome">
+                            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                            Receita
+                        </button>
+                        <button type="button" class="type-option" data-value="EXPENSE" id="typeExpense">
+                            <svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                            Despesa
+                        </button>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label" for="fieldDescription">Descrição *</label>
-                    <input
-                        type="text"
-                        id="fieldDescription"
-                        class="form-control"
-                        placeholder="Ex: Salário, Aluguel, Supermercado..."
-                        maxlength="120"
-                    />
+                    <input type="text" id="fieldDescription" class="form-control"
+                        placeholder="Ex: Salário, Aluguel, Supermercado..." maxlength="120" />
                 </div>
 
-                <!-- Valor -->
                 <div class="form-group">
-                    <label class="form-label" for="fieldAmount">Valor (R$) *</label>
-                    <input
-                        type="number"
-                        id="fieldAmount"
-                        class="form-control"
-                        placeholder="0,00"
-                        min="0.01"
-                        step="0.01"
-                    />
+                    <label class="form-label" for="fieldAmount">Valor *</label>
+                    <div class="input-group">
+                        <span class="input-prefix">R$</span>
+                        <input type="number" id="fieldAmount" class="form-control"
+                            placeholder="0,00" min="0.01" step="0.01" />
+                    </div>
                 </div>
 
-                <!-- Tipo -->
+                <!-- Data -->
                 <div class="form-group">
-                    <label class="form-label" for="fieldType">Tipo *</label>
-                    <select id="fieldType" class="form-control">
-                        <option value="">Selecione o tipo</option>
-                        <option value="INCOME">💚 Receita</option>
-                        <option value="EXPENSE">❤️ Despesa</option>
-                    </select>
+                    <label class="form-label" for="fieldDate">Data *</label>
+                    <input type="date" id="fieldDate" class="form-control" />
                 </div>
 
-                <!-- Categoria -->
                 <div class="form-group">
-                    <label class="form-label" for="fieldCategory">Categoria *</label>
-                    <select id="fieldCategory" class="form-control">
-                        <option value="">Selecione a categoria</option>
-                        <option value="SALARY">💼 Salário</option>
-                        <option value="FOOD">🍔 Alimentação</option>
-                        <option value="TRANSPORT">🚗 Transporte</option>
-                        <option value="HOUSING">🏠 Moradia</option>
-                        <option value="HEALTH">💊 Saúde</option>
-                        <option value="LEISURE">🎮 Lazer</option>
-                        <option value="OTHER">📦 Outros</option>
-                    </select>
+                    <label class="form-label">Categoria *</label>
+                    <div class="category-grid" id="categoryGrid">
+
+                        <button type="button" class="cat-option" data-value="SALARY">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                            </div>
+                            <span class="cat-option-label">Salário</span>
+                        </button>
+
+                        <button type="button" class="cat-option" data-value="FOOD">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                            </div>
+                            <span class="cat-option-label">Alimentação</span>
+                        </button>
+
+                        <button type="button" class="cat-option" data-value="TRANSPORT">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            </div>
+                            <span class="cat-option-label">Transporte</span>
+                        </button>
+
+                        <button type="button" class="cat-option" data-value="HOUSING">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            </div>
+                            <span class="cat-option-label">Moradia</span>
+                        </button>
+
+                        <button type="button" class="cat-option" data-value="HEALTH">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            </div>
+                            <span class="cat-option-label">Saúde</span>
+                        </button>
+
+                        <button type="button" class="cat-option" data-value="LEISURE">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                            </div>
+                            <span class="cat-option-label">Lazer</span>
+                        </button>
+
+                        <button type="button" class="cat-option" data-value="OTHER">
+                            <div class="cat-option-icon">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            </div>
+                            <span class="cat-option-label">Outros</span>
+                        </button>
+
+                    </div>
                 </div>
 
             </form>
@@ -251,10 +254,7 @@
         </div>
     </div>
 </div>
-<!-- ── FIM MODAL ── -->
-
 
 <script src="js/transacoes.js"></script>
-
 </body>
 </html>

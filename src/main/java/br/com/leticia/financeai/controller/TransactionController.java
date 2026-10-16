@@ -61,8 +61,8 @@ public class TransactionController {
 
     @PutMapping("/{id}")
     public Transaction update(@PathVariable Long id,
-                              @RequestBody Transaction transaction) {
-        return transactionService.update(id, transaction);
+                              @RequestBody TransactionDTO transactionDTO) {
+        return transactionService.update(id, transactionDTO);
     }
 
 }

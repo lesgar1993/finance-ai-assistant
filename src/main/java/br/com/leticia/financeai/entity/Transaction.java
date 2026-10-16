@@ -1,7 +1,6 @@
 package br.com.leticia.financeai.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
 import br.com.leticia.financeai.enums.TransactionType;
 import br.com.leticia.financeai.enums.Category;
 import jakarta.persistence.Entity;
@@ -12,14 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
 public class Transaction {
-    //essa classe vai virar uma tabela chamada transactions no BD
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +32,11 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     private Category category;
+
+    private LocalDateTime createdAt;
+
+    public Transaction() {
+    }
 
     public Long getId() {
         return id;
@@ -74,7 +76,6 @@ public class Transaction {
 
     public void setCategory(Category category) {
         this.category = category;
-
     }
 
     public LocalDateTime getCreatedAt() {
@@ -84,16 +85,4 @@ public class Transaction {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-    private LocalDateTime createdAt;
-
-    public Transaction() {
-
-    }
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
-
 }

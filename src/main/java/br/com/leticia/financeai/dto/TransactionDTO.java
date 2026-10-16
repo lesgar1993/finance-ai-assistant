@@ -7,24 +7,25 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class TransactionDTO {
 
     @NotBlank(message = "Description must not be blank")
     private String description;
 
-
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be greater than zero")
     private BigDecimal amount;
 
-
     @NotNull(message = "Type is required")
     private TransactionType type;
 
-
     @NotNull(message = "Category is required")
     private Category category;
+
+    // Opcional: se não informado, usa a data atual
+    private LocalDate transactionDate;
 
     public TransactionDTO() {
     }
@@ -59,5 +60,13 @@ public class TransactionDTO {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public LocalDate getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDate transactionDate) {
+        this.transactionDate = transactionDate;
     }
 }

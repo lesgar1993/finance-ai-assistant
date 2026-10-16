@@ -1,58 +1,19 @@
 /**
- * ai.js
- * Responsável por:
- *  - Enviar perguntas para a IA  (GET /ai?message=...)
- *  - Renderizar mensagens do usuário e da IA no chat
- *  - Mostrar indicador de "digitando..." enquanto aguarda resposta
- *  - Lidar com chips de sugestão
- *  - Auto-resize do textarea conforme o usuário digita
- *
- * Endpoint usado: GET /ai?message={texto}
- * A API retorna uma string com a resposta da IA (texto puro).
+ * ai.js — Finance AI v2
+ * Renderiza respostas com formatação rica (markdown light)
  */
 
-// ─────────────────────────────────────────────
-// CONFIGURAÇÃO
-// ─────────────────────────────────────────────
-
-// API_BASE vazio = mesma origem (Spring Boot em localhost:8080)
 const API_BASE = '';
-
-// ─────────────────────────────────────────────
-// REFERÊNCIAS AOS ELEMENTOS DO HTML
-// ─────────────────────────────────────────────
 
 const chatWindow  = document.getElementById('chatWindow');
 const chatInput   = document.getElementById('chatInput');
 const btnSend     = document.getElementById('btnSend');
 const suggestions = document.getElementById('suggestions');
 
-const sidebarToggle  = document.getElementById('sidebarToggle');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
-const sidebar        = document.getElementById('sidebar');
-
-// ─────────────────────────────────────────────
-// SIDEBAR MOBILE
-// ─────────────────────────────────────────────
-
-sidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    sidebarOverlay.classList.toggle('open');
-});
-
-sidebarOverlay.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    sidebarOverlay.classList.remove('open');
-});
-
-// ─────────────────────────────────────────────
-// TOAST
-// ─────────────────────────────────────────────
-
+// ── Toast ──
 function showToast(message, type = 'info', duration = 4000) {
     const container = document.getElementById('toastContainer');
     const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
@@ -64,125 +25,71 @@ function showToast(message, type = 'info', duration = 4000) {
     setTimeout(() => toast.remove(), duration);
 }
 
-// ─────────────────────────────────────────────
-// AUTO-RESIZE DO TEXTAREA
-// ─────────────────────────────────────────────
+// ── Timestamp ──
+function nowTime() {
+    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
 
-/**
- * Ajusta a altura do textarea dinamicamente conforme o conteúdo cresce.
- * Limita a altura máxima via CSS (max-height: 120px definido no style.css).
- */
+// ── Timestamp da mensagem de boas-vindas ──
+const welcomeTime = document.getElementById('welcomeTime');
+if (welcomeTime) welcomeTime.textContent = nowTime();
+
+// ── Auto-resize textarea ──
 chatInput.addEventListener('input', () => {
     chatInput.style.height = 'auto';
     chatInput.style.height = chatInput.scrollHeight + 'px';
 });
 
-// ─────────────────────────────────────────────
-// RENDERIZAR MENSAGENS NO CHAT
-// ─────────────────────────────────────────────
-
+// ── Formatador de markdown leve ──
 /**
- * Adiciona uma mensagem do USUÁRIO ao chat.
- * @param {string} text - Texto digitado pelo usuário
+ * Converte texto plano com markdown leve em HTML formatado.
+ * Suporta: **negrito**, *itálico*, - listas, ## títulos, R$ valores, \n
  */
-function appendUserMessage(text) {
-    const msg = document.createElement('div');
-    msg.className = 'chat-msg chat-msg-user';
-    msg.innerHTML = `
-        <div class="msg-avatar msg-avatar-user">👤</div>
-        <div class="msg-bubble msg-bubble-user">${escapeHtml(text)}</div>
-    `;
-    chatWindow.appendChild(msg);
-    scrollToBottom();
-}
+function formatAiMessage(text) {
+    let html = escapeHtml(text);
 
-/**
- * Adiciona uma mensagem da IA ao chat.
- * Converte quebras de linha em <br> para melhor legibilidade.
- * @param {string} text - Texto da resposta da IA
- */
-function appendAiMessage(text) {
-    const msg = document.createElement('div');
-    msg.className = 'chat-msg chat-msg-ai';
+    // Negrito **texto** ou __texto__
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
 
-    // Converte \n em <br> para respeitar parágrafos na resposta
-    const formatted = escapeHtml(text).replace(/\n/g, '<br />');
+    // Itálico *texto* ou _texto_
+    html = html.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+    html = html.replace(/_([^_]+?)_/g, '<em>$1</em>');
 
-    msg.innerHTML = `
-        <div class="msg-avatar msg-avatar-ai">🤖</div>
-        <div class="msg-bubble msg-bubble-ai">${formatted}</div>
-    `;
-    chatWindow.appendChild(msg);
-    scrollToBottom();
-}
+    // Títulos ## e ###
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
 
-/**
- * Adiciona uma mensagem de ERRO da IA ao chat,
- * visualmente diferenciada com tom vermelho.
- * @param {string} text - Mensagem de erro
- */
-function appendErrorMessage(text) {
-    const msg = document.createElement('div');
-    msg.className = 'chat-msg chat-msg-ai';
-    msg.innerHTML = `
-        <div class="msg-avatar msg-avatar-ai">🤖</div>
-        <div class="msg-bubble msg-bubble-ai" style="border-left: 3px solid var(--red-expense); color: var(--red-expense);">
-            ⚠️ ${escapeHtml(text)}
-        </div>
-    `;
-    chatWindow.appendChild(msg);
-    scrollToBottom();
-}
+    // Valores monetários — detecta padrões tipo "R$ 1.234,56" ou "R$1234"
+    html = html.replace(/(R\$\s?[\d.,]+)/g, (match) => {
+        // Tenta detectar se é receita ou despesa pelo contexto próximo
+        return `<span class="ai-money">${match}</span>`;
+    });
 
-// ─────────────────────────────────────────────
-// INDICADOR DE "DIGITANDO..."
-// ─────────────────────────────────────────────
+    // Listas com - ou •
+    html = html.replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>(\n|$))+/g, (match) => `<ul>${match}</ul>`);
 
-/** Referência ao elemento de typing indicator (para poder removê-lo depois). */
-let typingIndicator = null;
+    // Listas numeradas
+    html = html.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
 
-/** Mostra os três pontos animados enquanto a IA processa a resposta. */
-function showTypingIndicator() {
-    typingIndicator = document.createElement('div');
-    typingIndicator.className = 'chat-msg chat-msg-ai';
-    typingIndicator.id = 'typingIndicator';
-    typingIndicator.innerHTML = `
-        <div class="msg-avatar msg-avatar-ai">🤖</div>
-        <div class="msg-bubble msg-bubble-ai">
-            <div class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    `;
-    chatWindow.appendChild(typingIndicator);
-    scrollToBottom();
-}
+    // Linha horizontal ---
+    html = html.replace(/^---+$/gm, '<hr>');
 
-/** Remove o indicador de "digitando..." após receber a resposta. */
-function removeTypingIndicator() {
-    if (typingIndicator) {
-        typingIndicator.remove();
-        typingIndicator = null;
+    // Quebras de linha — preserva parágrafos mas remove dupla quebra desnecessária
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+
+    // Envolve em parágrafo se não começar com tag
+    if (!html.startsWith('<')) {
+        html = `<p>${html}</p>`;
     }
+
+    // Dicas (linhas que começam com 💡 ou "Dica:")
+    html = html.replace(/(💡[^<\n]+)/g, '<div class="ai-tip">$1</div>');
+
+    return html;
 }
-
-// ─────────────────────────────────────────────
-// SCROLL AUTOMÁTICO
-// ─────────────────────────────────────────────
-
-/** Rola o chat para mostrar sempre a mensagem mais recente. */
-function scrollToBottom() {
-    // Pequeno delay para garantir que o DOM foi atualizado antes do scroll
-    setTimeout(() => {
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }, 50);
-}
-
-// ─────────────────────────────────────────────
-// ESCAPE HTML (segurança)
-// ─────────────────────────────────────────────
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -190,129 +97,134 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ─────────────────────────────────────────────
-// ENVIAR MENSAGEM PARA A IA
-// ─────────────────────────────────────────────
+// ── Avatar SVGs ──
+const AI_AVATAR_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1" fill="white" stroke="none"/><circle cx="15" cy="14" r="1" fill="white" stroke="none"/></svg>`;
+const USER_AVATAR_SVG = `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
 
-/**
- * Ponto central do chat:
- *  1. Pega o texto do input
- *  2. Valida que não está vazio
- *  3. Renderiza a mensagem do usuário
- *  4. Mostra o indicador de typing
- *  5. Faz GET /ai?message={texto}
- *  6. Remove o typing e mostra a resposta (ou erro)
- *
- * O endpoint /ai retorna texto puro (não JSON), por isso usamos
- * response.text() em vez de response.json().
- */
+// ── Renderizar mensagens ──
+function appendUserMessage(text) {
+    const time = nowTime();
+    const msg = document.createElement('div');
+    msg.className = 'chat-msg chat-msg-user';
+    msg.innerHTML = `
+        <div class="msg-avatar msg-avatar-user">${USER_AVATAR_SVG}</div>
+        <div>
+            <div class="msg-bubble msg-bubble-user">${escapeHtml(text)}</div>
+            <span class="msg-time">${time}</span>
+        </div>
+    `;
+    chatWindow.appendChild(msg);
+    scrollToBottom();
+}
+
+function appendAiMessage(text) {
+    const time = nowTime();
+    const msg = document.createElement('div');
+    msg.className = 'chat-msg chat-msg-ai';
+    msg.innerHTML = `
+        <div class="msg-avatar msg-avatar-ai">${AI_AVATAR_SVG}</div>
+        <div>
+            <div class="msg-bubble msg-bubble-ai">${formatAiMessage(text)}</div>
+            <span class="msg-time">${time}</span>
+        </div>
+    `;
+    chatWindow.appendChild(msg);
+    scrollToBottom();
+}
+
+function appendErrorMessage(text) {
+    const msg = document.createElement('div');
+    msg.className = 'chat-msg chat-msg-ai';
+    msg.innerHTML = `
+        <div class="msg-avatar msg-avatar-ai">${AI_AVATAR_SVG}</div>
+        <div>
+            <div class="msg-bubble msg-bubble-ai" style="border-left:3px solid var(--red-expense);">
+                <strong style="color:var(--red-expense);">Ops, algo deu errado</strong><br>
+                <span style="color:var(--gray-600);font-size:13px;">${escapeHtml(text)}</span>
+            </div>
+        </div>
+    `;
+    chatWindow.appendChild(msg);
+    scrollToBottom();
+}
+
+// ── Typing indicator ──
+let typingIndicator = null;
+
+function showTypingIndicator() {
+    typingIndicator = document.createElement('div');
+    typingIndicator.className = 'chat-msg chat-msg-ai';
+    typingIndicator.id = 'typingIndicator';
+    typingIndicator.innerHTML = `
+        <div class="msg-avatar msg-avatar-ai">${AI_AVATAR_SVG}</div>
+        <div class="msg-bubble msg-bubble-ai" style="padding:14px 16px;">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+    `;
+    chatWindow.appendChild(typingIndicator);
+    scrollToBottom();
+}
+
+function removeTypingIndicator() {
+    if (typingIndicator) { typingIndicator.remove(); typingIndicator = null; }
+}
+
+// ── Scroll ──
+function scrollToBottom() {
+    setTimeout(() => { chatWindow.scrollTop = chatWindow.scrollHeight; }, 50);
+}
+
+// ── Enviar mensagem ──
 async function sendMessage() {
     const text = chatInput.value.trim();
+    if (!text) { chatInput.focus(); return; }
 
-    if (!text) {
-        chatInput.focus();
-        return;
-    }
-
-    // Esconde os chips de sugestão após a primeira mensagem enviada
-    // (deixa o chat mais limpo)
     if (suggestions) suggestions.style.display = 'none';
 
-    // Renderiza a mensagem do usuário imediatamente
     appendUserMessage(text);
-
-    // Limpa e redefine o textarea
     chatInput.value = '';
     chatInput.style.height = 'auto';
-
-    // Desabilita o envio durante o processamento
     btnSend.disabled = true;
-
-    // Mostra "digitando..."
     showTypingIndicator();
 
     try {
-        /**
-         * GET /ai?message={texto}
-         *
-         * Usamos encodeURIComponent para garantir que caracteres especiais
-         * (acentos, espaços, ?, &) sejam codificados corretamente na URL.
-         *
-         * Exemplo: "Quanto gastei?" → "Quanto%20gastei%3F"
-         */
         const url = `${API_BASE}/ai?message=${encodeURIComponent(text)}`;
         const response = await fetch(url);
-
         removeTypingIndicator();
 
-        if (!response.ok) {
-            throw new Error(`Erro HTTP ${response.status} — ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status} — ${response.statusText}`);
 
-        // A API retorna texto puro (String), não JSON
         const aiResponse = await response.text();
-
         if (!aiResponse || aiResponse.trim() === '') {
             appendAiMessage('Recebi sua mensagem, mas a resposta veio vazia. Tente novamente.');
         } else {
             appendAiMessage(aiResponse);
         }
-
     } catch (error) {
         removeTypingIndicator();
-        console.error('Erro ao consultar a Finance AI:', error);
-
-        // Exibe o erro no próprio chat (mais amigável que só um toast)
-        appendErrorMessage(
-            'Erro ao consultar a Finance AI. Verifique se o Spring Boot e o Ollama estão rodando.'
-        );
-
-        showToast('Erro ao consultar a Finance AI.', 'error');
+        console.error(error);
+        appendErrorMessage('Verifique se o Spring Boot e o Ollama estão rodando corretamente.');
+        showToast('Erro ao consultar o Assistente Pessoal.', 'error');
     } finally {
-        // Sempre reabilita o botão de envio
         btnSend.disabled = false;
         chatInput.focus();
     }
 }
 
-// ─────────────────────────────────────────────
-// EVENT LISTENERS
-// ─────────────────────────────────────────────
-
-// Clique no botão "Enviar"
+// ── Event listeners ──
 btnSend.addEventListener('click', sendMessage);
 
-/**
- * Teclado no textarea:
- *  - Enter puro → envia a mensagem
- *  - Shift + Enter → insere uma nova linha (comportamento padrão)
- */
-chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault(); // impede a quebra de linha
-        sendMessage();
-    }
+chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
-/**
- * Chips de sugestão: ao clicar, preenche o input e envia automaticamente.
- * O atributo data-msg no HTML contém o texto da sugestão.
- */
 document.querySelectorAll('.suggestion-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-        const msg = chip.getAttribute('data-msg');
-        chatInput.value = msg;
-        // Aciona o auto-resize para mostrar o texto no textarea
+        chatInput.value = chip.getAttribute('data-msg');
         chatInput.dispatchEvent(new Event('input'));
         sendMessage();
     });
 });
 
-// ─────────────────────────────────────────────
-// INICIALIZAÇÃO
-// ─────────────────────────────────────────────
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Foca no campo de input ao abrir a página
-    chatInput.focus();
-});
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => { chatInput.focus(); });
